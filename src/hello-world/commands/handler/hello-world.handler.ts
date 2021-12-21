@@ -5,8 +5,8 @@ import {
   ICommandHandler,
 } from '@nestjs/cqrs';
 import { UserRepository } from '../../repository/user.repository';
-import { NameSaidEvent } from '../../events/name-said.event';
 import { HelloWorldCommand } from '../impl/hello-world.command';
+
 
 @CommandHandler(HelloWorldCommand)
 export class HelloWorldHandler implements ICommandHandler<HelloWorldCommand> {
@@ -26,7 +26,6 @@ export class HelloWorldHandler implements ICommandHandler<HelloWorldCommand> {
     console.log('HELLO NAME', name);
     // this.eventBus.publish(new NameSaidEvent(name));
     user.sayHello();
-    console.log(user['INTERNAL_EVENTS']);
     user.commit();
     return `Hello World Command dispatched`;
   }
