@@ -1,20 +1,21 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { PlaceOrderCommand } from '../impl/place-order.command';
-import * as uuid from 'uuid';
-import { OrderPlacedEvent } from 'src/order/events/order.events';
+import { OrderPlacedEvent } from '../../events/order.events';
 
 @CommandHandler(PlaceOrderCommand)
 export class PlaceOrderHandler implements ICommandHandler<PlaceOrderCommand> {
   constructor(private readonly eventBus: EventBus) {}
 
-  // will hardcode some values of what is going to be bought
   async execute(command: PlaceOrderCommand): Promise<{ status: string }> {
-    const { name } = command;
-    const orderTransactionGUID = uuid.v4();
-
+    const { orderTransactionGUID, orderUser, orderItem, orderAmount } = command;
     console.log('Order placed event emit');
     this.eventBus.publish(
-      new OrderPlacedEvent(orderTransactionGUID, name, 'MacBook Pro', 1),
+      new OrderPlacedEvent(
+        orderTransactionGUID,
+        orderUser,
+        orderItem,
+        orderAmount,
+      ),
     );
 
     return { status: 'ORDER_PLACED' };

@@ -1,3 +1,8 @@
 export class PlaceOrderCommand {
-  constructor(public readonly name: string) {}
+  constructor(
+    public readonly orderTransactionGUID: string,
+    public readonly orderUser: string,
+    public readonly orderItem: string,
+    public readonly orderAmount: number,
+  ) {}
 }

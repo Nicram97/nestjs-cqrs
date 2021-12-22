@@ -1,9 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrderPaymentCompletedEvent } from 'src/order/events/order.events';
+import { OrderPaymentCompletedEvent } from '../../events/order.events';
 import { CompletePaymentCommand } from '../impl/complete-payment.command';
 
 @CommandHandler(CompletePaymentCommand)
-export class CheckPaymentHandler
+export class CompletePaymentHandler
   implements ICommandHandler<CompletePaymentCommand>
 {
   constructor(private readonly eventBus: EventBus) {}
@@ -11,7 +11,7 @@ export class CheckPaymentHandler
   async execute(command: CompletePaymentCommand): Promise<{ status: string }> {
     const { orderTransactionGUID, orderUser, orderItem, orderAmount } = command;
 
-    console.log('Order payment checked event emit');
+    console.log('Order payment completed event emit');
     this.eventBus.publish(
       new OrderPaymentCompletedEvent(
         orderTransactionGUID,

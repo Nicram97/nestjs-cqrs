@@ -1,4 +1,4 @@
-export class OrderAccepted {
+export class OrderAcceptedEvent {
   constructor(
     public readonly orderTransactionGUID: string,
     public readonly orderUser: string,
@@ -39,7 +39,7 @@ export class OrderCompletedEvent {
     public readonly orderTransactionGUID: string,
     public readonly orderItem: string,
     public readonly orderAmount: number,
-    public readonly user: { email: string; id: string },
+    public readonly user: { email: string; id: number },
   ) {}
 }
 

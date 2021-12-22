@@ -1,5 +1,5 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { OrderInventoryCheckedEvent } from 'src/order/events/order.events';
+import { OrderInventoryCheckedEvent } from '../../events/order.events';
 import { CheckInventoryCommand } from '../impl/check-inventory.command';
 
 @CommandHandler(CheckInventoryCommand)
