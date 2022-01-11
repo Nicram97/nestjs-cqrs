@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ICommand, ofType, Saga } from '@nestjs/cqrs';
+import { ClientKafka } from '@nestjs/microservices';
 import { delay, map, mergeMap, Observable } from 'rxjs';
 import { CheckInventoryCommand } from '../commands/impl/check-inventory.command';
 import { CompleteOrderCommand } from '../commands/impl/complete-order.command';
@@ -15,6 +16,7 @@ import {
 
 @Injectable()
 export class OrderSagas {
+  constructor(@Inject('NestjsKafka') private readonly client: ClientKafka) {}
   @Saga()
   orderAccepted = (events$: Observable<any>): Observable<ICommand> => {
     return events$.pipe(
@@ -56,6 +58,7 @@ export class OrderSagas {
       delay(2000),
       map((event) => {
         console.log('orderInventoryChecked saga');
+        this.client.emit('kafka.test', event);
         return new CompletePaymentCommand(
           event.orderTransactionGUID,
           event.orderUser,
