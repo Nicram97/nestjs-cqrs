@@ -28,7 +28,7 @@ import { OrderSagas } from './sagas/order.saga';
             brokers: ['localhost:29092'],
           },
           consumer: {
-            groupId: 'an_unique_string_id',
+            groupId: 'an_unique_string_id1',
           },
         },
       },
