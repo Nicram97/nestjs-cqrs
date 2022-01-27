@@ -12,27 +12,33 @@ import { PlaceOrderCommand } from './commands/impl/place-order.command';
 import * as uuid from 'uuid';
 import { OrderAcceptedEvent } from './events/order.events';
 import {
+  Client,
   ClientKafka,
+  ClientProxy,
+  Ctx,
   EventPattern,
+  KafkaContext,
   MessagePattern,
   Payload,
+  Transport,
 } from '@nestjs/microservices';
+import { KafkaMessage } from 'kafkajs';
 
 @Controller()
 export class OrderController implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly eventBus: EventBus,
     private readonly commandBus: CommandBus,
-    private queryBus: QueryBus,
+    private queryBus: QueryBus, // @Inject('NestjsKafka') private readonly client: ClientKafka,
     @Inject('NestjsKafka') private readonly client: ClientKafka,
   ) {}
 
-  onModuleInit() {
+  async onModuleInit() {
     this.client.subscribeToResponseOf('kafka.test');
   }
 
   async onModuleDestroy() {
-    await this.client.close();
+    // await this.client.close();
   }
 
   // will hardcode some values of what is going to be bought
@@ -47,12 +53,19 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
 
   @Get('kafka-test')
   testKafka() {
-    return this.client.emit('kafka.test', { foo: 'bar' });
+    return this.client.send('kafka.test', { foo: 'bar' });
   }
 
-  @EventPattern('kafka.test.reply')
-  handleReplyFromConsumer(data: Record<string, unknown>): void {
-    console.log('HELLLLLO');
-    console.log(data);
+  @MessagePattern('kafka.test.reply')
+  handleReplyFromConsumer(
+    @Payload() message: any,
+    @Ctx() context: KafkaContext,
+  ): void {
+    const originalMessage: KafkaMessage = context.getMessage();
+    const value = JSON.parse(JSON.stringify(originalMessage.value));
+    const response =
+      `Receiving a new message from topic: kafka.test: ` +
+      JSON.stringify(originalMessage.value);
+    console.log(response);
   }
 }

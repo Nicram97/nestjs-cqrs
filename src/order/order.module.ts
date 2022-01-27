@@ -24,11 +24,11 @@ import { OrderSagas } from './sagas/order.saga';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'any_client_id_i_want',
+            clientId: 'cqrs_main_producer',
             brokers: ['localhost:29092'],
           },
           consumer: {
-            groupId: 'an_unique_string_id1',
+            groupId: 'cqrs_main_producer_groupId',
           },
         },
       },
