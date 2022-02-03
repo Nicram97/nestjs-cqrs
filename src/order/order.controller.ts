@@ -23,6 +23,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { KafkaMessage } from 'kafkajs';
+import { filter, first, firstValueFrom, map } from 'rxjs';
 
 @Controller()
 export class OrderController implements OnModuleInit, OnModuleDestroy {
@@ -35,6 +36,7 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     this.client.subscribeToResponseOf('kafka.test');
+    this.client.subscribeToResponseOf('siema');
   }
 
   async onModuleDestroy() {
@@ -52,9 +54,34 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
   }
 
   @Get('kafka-test')
-  testKafka() {
-    return this.client.send('kafka.test', { foo: 'bar' });
+  async testKafka() {
+    const a = await firstValueFrom(
+      this.client.send('siema', { foo: 'bar' }).pipe(
+        filter((value) => value !== null && value !== undefined),
+        first(),
+      ),
+    );
+    const b = await firstValueFrom(
+      this.client.send('kafka.test', { foo: 'bar' }).pipe(
+        filter((value) => value !== null && value !== undefined),
+        first(),
+      ),
+    );
+    return [a, b];
   }
+
+  // @MessagePattern('siema.reply')
+  // handleReplyFromConsumer1(
+  //   @Payload() message: any,
+  //   @Ctx() context: KafkaContext,
+  // ): void {
+  //   const originalMessage: KafkaMessage = context.getMessage();
+  //   const value = JSON.parse(JSON.stringify(originalMessage.value));
+  //   const response =
+  //     `Receiving a new message from topic: siema: ` +
+  //     JSON.stringify(originalMessage.value);
+  //   console.log(response);
+  // }
 
   @MessagePattern('kafka.test.reply')
   handleReplyFromConsumer(
