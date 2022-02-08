@@ -2,14 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { ICommand, ofType, Saga } from '@nestjs/cqrs';
 import { delay, map, mergeMap, Observable } from 'rxjs';
 import { CheckInventoryCommand } from '../commands/impl/check-inventory.command';
-import { CompleteOrderCommand } from '../commands/impl/complete-order.command';
 import { CompletePaymentCommand } from '../commands/impl/complete-payment.command';
 import { PlaceOrderCommand } from '../commands/impl/place-order.command';
 import {
   OrderAcceptedEvent,
   OrderCompletedEvent,
   OrderInventoryCheckedEvent,
-  OrderPaymentCompletedEvent,
   OrderPlacedEvent,
 } from '../events/order.events';
 
@@ -49,22 +47,22 @@ export class OrderSagas {
     );
   };
 
-  // @Saga()
-  // orderInventoryChecked = (events$: Observable<any>): Observable<ICommand> => {
-  //   return events$.pipe(
-  //     ofType(OrderInventoryCheckedEvent),
-  //     delay(2000),
-  //     map((event) => {
-  //       console.log('orderInventoryChecked saga');
-  //       return new CompletePaymentCommand(
-  //         event.orderTransactionGUID,
-  //         event.orderUser,
-  //         event.orderItem,
-  //         event.orderAmount,
-  //       );
-  //     }),
-  //   );
-  // };
+  @Saga()
+  orderInventoryChecked = (events$: Observable<any>): Observable<ICommand> => {
+    return events$.pipe(
+      ofType(OrderInventoryCheckedEvent),
+      delay(2000),
+      map((event) => {
+        console.log('orderInventoryChecked saga');
+        return new CompletePaymentCommand(
+          event.orderTransactionGUID,
+          event.orderUser,
+          event.orderItem,
+          event.orderAmount,
+        );
+      }),
+    );
+  };
 
   // @Saga()
   // orderPaymentCompleted = (events$: Observable<any>): Observable<ICommand> => {
@@ -83,15 +81,15 @@ export class OrderSagas {
   //   );
   // };
 
-  // @Saga()
-  // orderCompleted = (events$: Observable<any>): Observable<ICommand> => {
-  //   return events$.pipe(
-  //     ofType(OrderCompletedEvent),
-  //     delay(1000),
-  //     mergeMap((event) => {
-  //       console.log('OrderCompleted saga', event.user.email);
-  //       return [];
-  //     }),
-  //   );
-  // };
+  @Saga()
+  orderCompleted = (events$: Observable<any>): Observable<ICommand> => {
+    return events$.pipe(
+      ofType(OrderCompletedEvent),
+      delay(1000),
+      mergeMap((event) => {
+        console.log('OrderCompleted saga', event.user.email);
+        return [];
+      }),
+    );
+  };
 }

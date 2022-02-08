@@ -8,22 +8,15 @@ import {
   Post,
 } from '@nestjs/common';
 import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
-import { PlaceOrderCommand } from './commands/impl/place-order.command';
 import * as uuid from 'uuid';
-import { OrderAcceptedEvent } from './events/order.events';
 import {
-  Client,
-  ClientKafka,
-  ClientProxy,
-  Ctx,
-  EventPattern,
-  KafkaContext,
-  MessagePattern,
-  Payload,
-  Transport,
-} from '@nestjs/microservices';
-import { KafkaMessage } from 'kafkajs';
-import { filter, first, firstValueFrom, map } from 'rxjs';
+  OrderAcceptedEvent,
+  OrderPaymentCompletedEvent,
+} from './events/order.events';
+import { ClientKafka, EventPattern } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { plainToClass } from 'class-transformer';
+import { CompleteOrderCommand } from './commands/impl/complete-order.command';
 
 @Controller()
 export class OrderController implements OnModuleInit, OnModuleDestroy {
@@ -40,7 +33,7 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    // await this.client.close();
+    await this.client.close();
   }
 
   // will hardcode some values of what is going to be bought
@@ -53,21 +46,42 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
     return { status: 'ORDER_ACCEPTED' };
   }
 
-  @Get('kafka-test')
-  async testKafka() {
-    const a = await firstValueFrom(
-      this.client.send('siema', { foo: 'bar' }).pipe(
-        filter((value) => value !== null && value !== undefined),
-        first(),
-      ),
-    );
+  // test message-patter
+  @Get('kafka-message')
+  async testKafka(): Promise<any> {
+    const a = await firstValueFrom(this.client.send('siema', { foo: 'bar' }));
     const b = await firstValueFrom(
-      this.client.send('kafka.test', { foo: 'bar' }).pipe(
-        filter((value) => value !== null && value !== undefined),
-        first(),
-      ),
+      this.client.send('kafka.test', { foo: 'bar' }),
     );
     return [a, b];
+  }
+
+  // test event-patter
+  @Get('kafka-event')
+  async testEvent(): Promise<void> {
+    this.client.emit('kafka.event', { foo: 'event' });
+  }
+
+  @EventPattern('kafka.event.response')
+  readKafkaResponseEvent(data: Record<string, unknown>): void {
+    console.log(`Received event from kafka.event.response topic`, data);
+  }
+
+  @EventPattern('kafka.order.response')
+  parsePaymentCompleted(data: Record<string, unknown>): void {
+    const orderPaymentCompletedEvent: OrderPaymentCompletedEvent = plainToClass(
+      OrderPaymentCompletedEvent,
+      data.value,
+    );
+    console.log('Payment completed proceed to complete order');
+    this.commandBus.execute(
+      new CompleteOrderCommand(
+        orderPaymentCompletedEvent.orderTransactionGUID,
+        orderPaymentCompletedEvent.orderUser,
+        orderPaymentCompletedEvent.orderItem,
+        orderPaymentCompletedEvent.orderAmount,
+      ),
+    );
   }
 
   // @MessagePattern('siema.reply')
@@ -83,16 +97,16 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
   //   console.log(response);
   // }
 
-  @MessagePattern('kafka.test.reply')
-  handleReplyFromConsumer(
-    @Payload() message: any,
-    @Ctx() context: KafkaContext,
-  ): void {
-    const originalMessage: KafkaMessage = context.getMessage();
-    const value = JSON.parse(JSON.stringify(originalMessage.value));
-    const response =
-      `Receiving a new message from topic: kafka.test: ` +
-      JSON.stringify(originalMessage.value);
-    console.log(response);
-  }
+  // @MessagePattern('kafka.test.reply')
+  // handleReplyFromConsumer(
+  //   @Payload() message: any,
+  //   @Ctx() context: KafkaContext,
+  // ): void {
+  //   const originalMessage: KafkaMessage = context.getMessage();
+  //   const value = JSON.parse(JSON.stringify(originalMessage.value));
+  //   const response =
+  //     `Receiving a new message from topic: kafka.test: ` +
+  //     JSON.stringify(originalMessage.value);
+  //   console.log(response);
+  // }
 }

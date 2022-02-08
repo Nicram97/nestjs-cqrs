@@ -24,8 +24,8 @@ export class CheckInventoryHandler
         orderItem,
         orderAmount,
       );
-    this.eventBus.publish(orderInventoryCheckedEvent);
-    this.client.send('kafka.test', JSON.stringify(orderInventoryCheckedEvent));
+    // this.eventBus.publish(orderInventoryCheckedEvent);
+    this.client.emit('kafka.order', JSON.stringify(orderInventoryCheckedEvent));
     return { status: 'INVENTORY_CHECK' };
   }
 }
