@@ -1,0 +1,87 @@
+{
+	"info": {
+		"_postman_id": "c3aaf730-57e6-46a6-a346-8e6dce847fad",
+		"name": "nest-cqrs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17905817"
+	},
+	"item": [
+		{
+			"name": "HelloWorld",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/hello-world/Test",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"hello-world",
+						"Test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createOrder",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/Marcin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"Marcin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "messagePattern",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/kafka-message",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"kafka-message"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "eventPattern",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/kafka-event",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"kafka-event"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

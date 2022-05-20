@@ -83,30 +83,4 @@ export class OrderController implements OnModuleInit, OnModuleDestroy {
       ),
     );
   }
-
-  // @MessagePattern('siema.reply')
-  // handleReplyFromConsumer1(
-  //   @Payload() message: any,
-  //   @Ctx() context: KafkaContext,
-  // ): void {
-  //   const originalMessage: KafkaMessage = context.getMessage();
-  //   const value = JSON.parse(JSON.stringify(originalMessage.value));
-  //   const response =
-  //     `Receiving a new message from topic: siema: ` +
-  //     JSON.stringify(originalMessage.value);
-  //   console.log(response);
-  // }
-
-  // @MessagePattern('kafka.test.reply')
-  // handleReplyFromConsumer(
-  //   @Payload() message: any,
-  //   @Ctx() context: KafkaContext,
-  // ): void {
-  //   const originalMessage: KafkaMessage = context.getMessage();
-  //   const value = JSON.parse(JSON.stringify(originalMessage.value));
-  //   const response =
-  //     `Receiving a new message from topic: kafka.test: ` +
-  //     JSON.stringify(originalMessage.value);
-  //   console.log(response);
-  // }
 }
